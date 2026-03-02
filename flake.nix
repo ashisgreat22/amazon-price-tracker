@@ -14,6 +14,8 @@
           requests
           beautifulsoup4
           lxml
+          pytest
+          requests-mock
         ]);
       in
       {
