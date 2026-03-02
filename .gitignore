@@ -1,0 +1,13 @@
+# .gitignore
+__pycache__/
+*.pyc
+*.pyo
+.env
+venv/
+data/*.csv
+data/*.json
+!data/.gitkeep
+.DS_Store
+*.egg-info/
+dist/
+build/
