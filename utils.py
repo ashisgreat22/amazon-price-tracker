@@ -7,10 +7,11 @@ import time
 import re
 import os
 import logging
+from typing import Optional, Dict, List
 from config import USER_AGENTS, REQUEST_DELAY_MIN, REQUEST_DELAY_MAX, OUTPUT_DIR
 
 
-def setup_logging(level=logging.INFO):
+def setup_logging(level: int = logging.INFO) -> None:
     """Set up standard logging configuration for the project.
     
     Args:
@@ -23,7 +24,7 @@ def setup_logging(level=logging.INFO):
     )
 
 
-def get_random_headers():
+def get_random_headers() -> Dict[str, str]:
     """Return request headers with a random User-Agent."""
     return {
         "User-Agent": random.choice(USER_AGENTS),
@@ -36,13 +37,13 @@ def get_random_headers():
     }
 
 
-def random_delay():
+def random_delay() -> None:
     """Sleep for a random duration to avoid rate limiting."""
     delay = random.uniform(REQUEST_DELAY_MIN, REQUEST_DELAY_MAX)
     time.sleep(delay)
 
 
-def clean_price(price_text):
+def clean_price(price_text: Optional[str]) -> Optional[float]:
     """Extract numeric price from text.
     
     Args:
@@ -60,7 +61,7 @@ def clean_price(price_text):
     return None
 
 
-def clean_rating(rating_text):
+def clean_rating(rating_text: Optional[str]) -> Optional[float]:
     """Extract numeric rating from text like '4.5 out of 5 stars'.
     
     Args:
@@ -78,7 +79,7 @@ def clean_rating(rating_text):
     return None
 
 
-def clean_review_count(review_text):
+def clean_review_count(review_text: Optional[str]) -> Optional[int]:
     """Extract review count from text like '12,453'.
     
     Args:
@@ -96,12 +97,12 @@ def clean_review_count(review_text):
     return None
 
 
-def ensure_output_dir():
+def ensure_output_dir() -> None:
     """Create output directory if it doesn't exist."""
     os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 
-def generate_filename(query, extension="csv"):
+def generate_filename(query: str, extension: str = "csv") -> str:
     """Generate a timestamped filename based on the search query.
     
     Args:

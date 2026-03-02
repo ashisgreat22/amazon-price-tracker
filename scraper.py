@@ -10,8 +10,9 @@ import sys
 import os
 import requests
 import logging
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, Tag
 from datetime import datetime
+from typing import List, Dict, Any, Optional
 
 from config import BASE_URL, SELECTORS, MAX_RETRIES, TIMEOUT, OUTPUT_DIR, DEFAULT_FORMAT
 from utils import (
@@ -28,7 +29,7 @@ from utils import (
 logger = logging.getLogger(__name__)
 
 
-def scrape_page(query, page=1):
+def scrape_page(query: str, page: int = 1) -> List[Dict[str, Any]]:
     """Scrape a single page of Amazon search results.
     
     Args:
@@ -43,7 +44,7 @@ def scrape_page(query, page=1):
         "page": page,
     }
     
-    products = []
+    products: List[Dict[str, Any]] = []
     
     for attempt in range(MAX_RETRIES):
         try:
@@ -81,7 +82,7 @@ def scrape_page(query, page=1):
     return products
 
 
-def parse_product(item):
+def parse_product(item: Tag) -> Dict[str, Any]:
     """Parse a single product element from the search results.
     
     Args:
@@ -90,7 +91,7 @@ def parse_product(item):
     Returns:
         dict: Product data with name, price, rating, reviews, url, asin
     """
-    product = {
+    product: Dict[str, Any] = {
         "name": None,
         "price": None,
         "rating": None,
@@ -139,7 +140,7 @@ def parse_product(item):
     return product
 
 
-def scrape_amazon(query, pages=1):
+def scrape_amazon(query: str, pages: int = 1) -> List[Dict[str, Any]]:
     """Scrape multiple pages of Amazon search results.
     
     Args:
@@ -152,7 +153,7 @@ def scrape_amazon(query, pages=1):
     logger.info(f"Searching Amazon for: '{query}'")
     logger.info(f"Pages to scrape: {pages}")
     
-    all_products = []
+    all_products: List[Dict[str, Any]] = []
     
     for page in range(1, pages + 1):
         products = scrape_page(query, page)
@@ -165,7 +166,7 @@ def scrape_amazon(query, pages=1):
     return all_products
 
 
-def save_csv(products, filepath):
+def save_csv(products: List[Dict[str, Any]], filepath: str) -> None:
     """Save products to a CSV file.
     
     Args:
@@ -186,7 +187,7 @@ def save_csv(products, filepath):
     logger.info(f"Saved {len(products)} products to {filepath}")
 
 
-def save_json(products, filepath):
+def save_json(products: List[Dict[str, Any]], filepath: str) -> None:
     """Save products to a JSON file.
     
     Args:

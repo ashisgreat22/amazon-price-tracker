@@ -8,6 +8,7 @@ import csv
 import json
 import logging
 from datetime import datetime
+from typing import List, Dict, Any, Optional
 from config import OUTPUT_DIR
 
 logger = logging.getLogger(__name__)
@@ -16,7 +17,7 @@ logger = logging.getLogger(__name__)
 HISTORY_FILE = os.path.join(OUTPUT_DIR, "price_history.csv")
 
 
-def update_price_history(products, query):
+def update_price_history(products: List[Dict[str, Any]], query: str) -> None:
     """Append current prices to the history file for tracking over time.
     
     Args:
@@ -50,7 +51,7 @@ def update_price_history(products, query):
     logger.info(f"Tracked {len(products)} products for query '{query}'")
 
 
-def get_price_history(asin=None, query=None):
+def get_price_history(asin: Optional[str] = None, query: Optional[str] = None) -> List[Dict[str, str]]:
     """Read price history from the tracking file.
     
     Args:
@@ -64,7 +65,7 @@ def get_price_history(asin=None, query=None):
         logger.warning(f"No price history found at {HISTORY_FILE}. Run scraper with --track first.")
         return []
     
-    records = []
+    records: List[Dict[str, str]] = []
     
     with open(HISTORY_FILE, "r", encoding="utf-8") as f:
         reader = csv.DictReader(f)
@@ -78,7 +79,7 @@ def get_price_history(asin=None, query=None):
     return records
 
 
-def print_price_summary(query):
+def print_price_summary(query: str) -> None:
     """Print a summary of price changes for a query.
     
     Args:
@@ -91,7 +92,7 @@ def print_price_summary(query):
         return
     
     # Group by ASIN
-    products = {}
+    products: Dict[str, Dict[str, Any]] = {}
     for record in records:
         asin = record.get("asin", "unknown")
         if asin not in products:
