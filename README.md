@@ -15,7 +15,7 @@ A Python web scraping tool that extracts product data from Amazon search results
 ## Installation
 
 ```bash
-git clone https://github.com/ashie10/amazon-price-tracker.git
+git clone https://github.com/ashisgreat22/amazon-price-tracker.git
 cd amazon-price-tracker
 pip install -r requirements.txt
 ```
