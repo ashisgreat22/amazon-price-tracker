@@ -6,8 +6,11 @@ Logs historical price data for trend analysis.
 import os
 import csv
 import json
+import logging
 from datetime import datetime
 from config import OUTPUT_DIR
+
+logger = logging.getLogger(__name__)
 
 
 HISTORY_FILE = os.path.join(OUTPUT_DIR, "price_history.csv")
@@ -43,8 +46,8 @@ def update_price_history(products, query):
                 "reviews": product.get("reviews", ""),
             })
     
-    print(f"📈 Price history updated: {HISTORY_FILE}")
-    print(f"   Tracked {len(products)} products for query '{query}'")
+    logger.info(f"Price history updated: {HISTORY_FILE}")
+    logger.info(f"Tracked {len(products)} products for query '{query}'")
 
 
 def get_price_history(asin=None, query=None):
@@ -58,7 +61,7 @@ def get_price_history(asin=None, query=None):
         list: Historical price records
     """
     if not os.path.exists(HISTORY_FILE):
-        print("⚠️  No price history found. Run scraper with --track first.")
+        logger.warning(f"No price history found at {HISTORY_FILE}. Run scraper with --track first.")
         return []
     
     records = []
@@ -84,7 +87,7 @@ def print_price_summary(query):
     records = get_price_history(query=query)
     
     if not records:
-        print(f"No history found for query: '{query}'")
+        logger.warning(f"No history found for query: '{query}'")
         return
     
     # Group by ASIN

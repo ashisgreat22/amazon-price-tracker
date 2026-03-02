@@ -9,11 +9,13 @@ import json
 import sys
 import os
 import requests
+import logging
 from bs4 import BeautifulSoup
 from datetime import datetime
 
 from config import BASE_URL, SELECTORS, MAX_RETRIES, TIMEOUT, OUTPUT_DIR, DEFAULT_FORMAT
 from utils import (
+    setup_logging,
     get_random_headers,
     random_delay,
     clean_price,
@@ -22,6 +24,8 @@ from utils import (
     ensure_output_dir,
     generate_filename,
 )
+
+logger = logging.getLogger(__name__)
 
 
 def scrape_page(query, page=1):
@@ -55,7 +59,7 @@ def scrape_page(query, page=1):
             items = soup.select(SELECTORS["product_container"])
             
             if not items:
-                print(f"  ⚠️  No products found on page {page} (attempt {attempt + 1})")
+                logger.warning(f"No products found on page {page} (attempt {attempt + 1})")
                 if attempt < MAX_RETRIES - 1:
                     random_delay()
                     continue
@@ -66,11 +70,11 @@ def scrape_page(query, page=1):
                 if product and product["name"]:
                     products.append(product)
             
-            print(f"  ✅ Page {page}: Found {len(products)} products")
+            logger.info(f"Page {page}: Found {len(products)} products")
             break
             
         except requests.RequestException as e:
-            print(f"  ❌ Page {page}: Request failed (attempt {attempt + 1}/{MAX_RETRIES}): {e}")
+            logger.error(f"Page {page}: Request failed (attempt {attempt + 1}/{MAX_RETRIES}): {e}")
             if attempt < MAX_RETRIES - 1:
                 random_delay()
     
@@ -145,8 +149,8 @@ def scrape_amazon(query, pages=1):
     Returns:
         list: All scraped products
     """
-    print(f"\n🔍 Searching Amazon for: '{query}'")
-    print(f"📄 Pages to scrape: {pages}\n")
+    logger.info(f"Searching Amazon for: '{query}'")
+    logger.info(f"Pages to scrape: {pages}")
     
     all_products = []
     
@@ -157,7 +161,7 @@ def scrape_amazon(query, pages=1):
         if page < pages:
             random_delay()
     
-    print(f"\n📊 Total products scraped: {len(all_products)}")
+    logger.info(f"Total products scraped: {len(all_products)}")
     return all_products
 
 
@@ -169,7 +173,7 @@ def save_csv(products, filepath):
         filepath: Output file path
     """
     if not products:
-        print("⚠️  No products to save")
+        logger.warning("No products to save")
         return
     
     fieldnames = ["name", "price", "rating", "reviews", "url", "asin", "scraped_at"]
@@ -179,7 +183,7 @@ def save_csv(products, filepath):
         writer.writeheader()
         writer.writerows(products)
     
-    print(f"💾 Saved {len(products)} products to {filepath}")
+    logger.info(f"Saved {len(products)} products to {filepath}")
 
 
 def save_json(products, filepath):
@@ -190,13 +194,13 @@ def save_json(products, filepath):
         filepath: Output file path
     """
     if not products:
-        print("⚠️  No products to save")
+        logger.warning("No products to save")
         return
     
     with open(filepath, "w", encoding="utf-8") as f:
         json.dump(products, f, indent=2, ensure_ascii=False)
     
-    print(f"💾 Saved {len(products)} products to {filepath}")
+    logger.info(f"Saved {len(products)} products to {filepath}")
 
 
 def main():
@@ -232,13 +236,14 @@ def main():
     
     args = parser.parse_args()
     
+    setup_logging()
     ensure_output_dir()
     
     # Scrape products
     products = scrape_amazon(args.query, args.pages)
     
     if not products:
-        print("❌ No products found. Try a different search query.")
+        logger.error("No products found. Try a different search query.")
         sys.exit(1)
     
     # Determine output path
@@ -258,7 +263,7 @@ def main():
         from tracker import update_price_history
         update_price_history(products, args.query)
     
-    print("\n✅ Done!")
+    logger.info("Done!")
 
 
 if __name__ == "__main__":

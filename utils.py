@@ -6,7 +6,21 @@ import random
 import time
 import re
 import os
+import logging
 from config import USER_AGENTS, REQUEST_DELAY_MIN, REQUEST_DELAY_MAX, OUTPUT_DIR
+
+
+def setup_logging(level=logging.INFO):
+    """Set up standard logging configuration for the project.
+    
+    Args:
+        level: Minimum logging level (default: logging.INFO)
+    """
+    logging.basicConfig(
+        level=level,
+        format='%(asctime)s [%(levelname)s] %(name)s: %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
+    )
 
 
 def get_random_headers():
